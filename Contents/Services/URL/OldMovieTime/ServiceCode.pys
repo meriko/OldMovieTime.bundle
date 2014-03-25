@@ -1,0 +1,67 @@
+####################################################################################################
+def MetadataObjectForURL(url):
+    youtubeURL = GetYTURL(url)
+    
+    return URLService.MetadataObjectForURL(youtubeURL)
+
+####################################################################################################
+def MediaObjectsForURL(url):
+    mo = []
+    
+    for resolution in ['1080', '720', '480', '360']:
+        mo.append(
+            MediaObject(
+                video_resolution = resolution,
+                container = Container.MP4,
+                audio_channels = 2,
+                video_codec = VideoCodec.H264,
+                audio_codec = AudioCodec.AAC,
+                optimized_for_streaming = True,
+                parts = [
+                    PartObject(
+                        key = 
+                            Callback(
+                                PlayVideo,
+                                url = url,
+                                resolution = resolution
+                            )
+                    )
+                ]
+            )
+        )
+        
+    return mo
+
+####################################################################################################
+def PlayVideo(url, resolution):        
+    minResolutionDiffFound = 10000000 # Some huge number to get it started
+    preferredResolution    = int(resolution)
+    videoURL               = None
+    
+    youtubeURL = GetYTURL(url)
+    mediaObjects = URLService.MediaObjectsForURL(youtubeURL)
+
+    for mediaObject in mediaObjects:
+        if int(mediaObject.video_resolution) - preferredResolution <= minResolutionDiffFound:
+            minResolutionDiffFound = int(mediaObject.video_resolution) - preferredResolution
+            videoURL               = mediaObject.parts[0].key
+    
+    if videoURL:
+        Log(videoURL)
+        return Redirect(videoURL)
+    else:
+        raise Ex.MediaNotAvailable
+
+##########################################################################################
+def GetYTURL(url):
+    pageElement = HTML.ElementFromURL(url)
+    
+    for item in pageElement.xpath("//iframe"):
+        try:
+            link = item.xpath("./@src")[0]
+            if 'youtube.com/embed' in link:
+                return link.replace("//", "")
+        except:
+            continue
+    
+    raise Ex.MediaNotAvailable 
