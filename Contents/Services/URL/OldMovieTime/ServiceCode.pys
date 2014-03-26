@@ -33,12 +33,13 @@ def MediaObjectsForURL(url):
     return mo
 
 ####################################################################################################
+@indirect
 def PlayVideo(url, resolution):        
     minResolutionDiffFound = 10000000 # Some huge number to get it started
     preferredResolution    = int(resolution)
     videoURL               = None
     
-    youtubeURL = GetYTURL(url)
+    youtubeURL   = GetYTURL(url)
     mediaObjects = URLService.MediaObjectsForURL(youtubeURL)
 
     for mediaObject in mediaObjects:
@@ -47,8 +48,7 @@ def PlayVideo(url, resolution):
             videoURL               = mediaObject.parts[0].key
     
     if videoURL:
-        Log(videoURL)
-        return Redirect(videoURL)
+        return IndirectResponse(VideoClipObject, key = videoURL)
     else:
         raise Ex.MediaNotAvailable
 
@@ -59,8 +59,12 @@ def GetYTURL(url):
     for item in pageElement.xpath("//iframe"):
         try:
             link = item.xpath("./@src")[0]
+            
             if 'youtube.com/embed' in link:
-                return link.replace("//", "")
+                if link.startswith("//"):
+                    link = 'http:' + link
+                    
+                return link
         except:
             continue
     
