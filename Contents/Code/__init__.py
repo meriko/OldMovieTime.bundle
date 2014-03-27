@@ -115,16 +115,18 @@ def Movies(url, category):
         
         summary = None
         for span in pageElement.xpath("//span"):
+            text = span.xpath(".//text()")
+            
             try:
-                textToSearch = span.xpath(".//text()")[0].lower().strip()
+                textToSearch = text[0].lower().strip()
             except:
                 continue
 
             match = (title.lower() in textToSearch) or ((altTitle != '') and (altTitle in textToSearch))
 
-            if match:
+            if match and len(text) > 1:
                 try:
-                    summary = ''.join(span.xpath(".//text()")).strip()
+                    summary = ''.join(text).strip()
                     break
                 except:
                     continue
