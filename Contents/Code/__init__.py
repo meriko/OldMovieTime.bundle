@@ -104,13 +104,37 @@ def Movies(url, category):
         if not url.startswith("http"):
             url = BASE_URL + url
             
-        title = url.replace(BASE_URL, "").replace(".html", "").replace("_", " ").title()
+        title = url.replace(BASE_URL, "").replace(".html", "").replace("_", " ").replace("%20", " ").title().strip()
+        
+        try:
+            altTitle = item.xpath(".//img/@alt")[0].lower().strip()
+            if ' ' in altTitle:
+                altTitle = altTitle[:altTitle.rfind(' ')]
+        except:
+            altTitle = ''
+        
+        summary = None
+        for span in pageElement.xpath("//span"):
+            try:
+                textToSearch = span.xpath(".//text()")[0].lower().strip()
+            except:
+                continue
+
+            match = (title.lower() in textToSearch) or ((altTitle != '') and (altTitle in textToSearch))
+
+            if match:
+                try:
+                    summary = ''.join(span.xpath(".//text()")).strip()
+                    break
+                except:
+                    continue
         
         oc.add(
             MovieObject(
                 url = url,
                 title = title,
-                thumb = thumb
+                thumb = thumb,
+                summary = summary
             )
         )
         
