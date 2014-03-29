@@ -36,6 +36,10 @@ PREDEFINED_CATEGORIES = [
     {
         'title':    'Crime/Mystery',
         'url':      BASE_URL + 'crime_mystery.html'
+    },
+    {
+        'title':    'OMT B Classics',
+        'url':      BASE_URL + 'b/'
     }
 ]
 
@@ -90,6 +94,8 @@ def Movies(url, category):
             continue
         
         if not thumb.startswith("http"):
+            if '/b/' in url:
+                thumb = 'b/' + thumb
             thumb = BASE_URL + thumb
             
         if not (url.startswith(BASE_URL) or '28_00.jpg' in thumb):
@@ -98,13 +104,19 @@ def Movies(url, category):
         if not url.endswith(".html"):
             continue
         
-        if url.count("/") > 3:
+        count = 3
+        if '/b/' in originalURL:
+            count = 4
+        
+        if url.count("/") > count:
             continue
         
-        if not url.startswith("http"):
-            url = BASE_URL + url
-            
         title = url.replace(BASE_URL, "").replace(".html", "").replace("_", " ").replace("%20", " ").title().strip()
+        
+        if not url.startswith("http"):
+            if '/b/' in originalURL:
+                url = 'b/' + url
+            url = BASE_URL + url
         
         try:
             altTitle = item.xpath(".//img/@alt")[0].lower().strip()
@@ -135,7 +147,7 @@ def Movies(url, category):
             MovieObject(
                 url = url,
                 title = title,
-                thumb = thumb,
+                thumb = Resource.ContentsOfURLWithFallback(thumb),
                 summary = summary
             )
         )

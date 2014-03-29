@@ -67,5 +67,12 @@ def GetYTURL(url):
                 return link
         except:
             continue
+            
+    for link in pageElement.xpath("//@href"):
+        if 'youtube.com/watch' in link:
+            if link.startswith("//"):
+                link = 'http:' + link
+                
+            return link      
     
     raise Ex.MediaNotAvailable 
