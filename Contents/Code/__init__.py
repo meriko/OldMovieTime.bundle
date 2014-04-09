@@ -10,6 +10,10 @@ EPISODES_PER_PAGE = 12
 
 PREDEFINED_CATEGORIES = [ 
     {
+        'title':    'Now Showing',
+        'url':      BASE_URL
+    },
+    {
         'title':    'Action/Adventure',
         'url':      BASE_URL + 'action_adventure.html'
     },
