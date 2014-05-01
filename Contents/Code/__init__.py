@@ -82,7 +82,42 @@ def MainMenu():
                 title = category['title']
             )
         )
+    
+    oc.add(
+        DirectoryObject(
+            key =
+                Callback(
+                    AllMovies
+                ),
+            title = 'All Movies'
+        )
+    )
         
+    return oc
+
+##########################################################################################
+@route(PREFIX + '/AllMovies')
+def AllMovies():
+    oc = ObjectContainer(title2 = "All Movies")
+    
+    pageElement = HTML.ElementFromURL(BASE_URL)
+    
+    for item in pageElement.xpath("//*[@class='Normal-C']"):
+        url   = BASE_URL + item.xpath(".//a/@href")[0]
+        title = ''.join(item.xpath(".//a/text()")).strip()
+        
+        oc.add(
+            DirectoryObject(
+                key =
+                    Callback(
+                        Items,
+                        url = url,
+                        category = title
+                    ),
+                title = title
+            )
+        )
+    
     return oc
     
 ##########################################################################################
@@ -106,7 +141,7 @@ def Items(url, category, tv = False):
         if not thumb.startswith("http"):
             thumb = baseURL + thumb
             
-        if not (url.startswith(baseURL) or '28_00.jpg' in thumb or '14_00.jpg' in thumb):
+        if not (url.startswith(baseURL) or '28_00.jpg' in thumb or '14_00.jpg' in thumb) or ' ' in thumb:
             continue
             
         if not url.endswith(".html"):
