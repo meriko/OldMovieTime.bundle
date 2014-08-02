@@ -102,9 +102,9 @@ def AllMovies():
     
     pageElement = HTML.ElementFromURL(BASE_URL)
     
-    for item in pageElement.xpath("//*[@class='Normal-C']"):
-        url   = BASE_URL + item.xpath(".//a/@href")[0]
-        title = ''.join(item.xpath(".//a/text()")).strip()
+    for item in pageElement.xpath("//*[@class='Normal-C']//a"):
+        url   = BASE_URL + item.xpath("./@href")[0]
+        title = ''.join(item.xpath("./text()")).strip()
         
         oc.add(
             DirectoryObject(
@@ -131,7 +131,10 @@ def Items(url, category, tv = False):
     
     # Add movies by parsing the site
     for item in pageElement.xpath("//a"):
-        url = item.xpath("./@href")[0]
+        try:
+            url = item.xpath("./@href")[0]
+        except:
+            continue
         
         try:
             thumb = item.xpath(".//img/@src")[0]
@@ -141,10 +144,7 @@ def Items(url, category, tv = False):
         if not thumb.startswith("http"):
             thumb = baseURL + thumb
             
-        if not (url.startswith(baseURL) or '28_00.jpg' in thumb or '14_00.jpg' in thumb) or ' ' in thumb:
-            continue
-            
-        if not url.endswith(".html"):
+        if not url.endswith(".html") or url == 'index.html':
             continue
         
         count = 3
@@ -195,8 +195,9 @@ def Items(url, category, tv = False):
                 continue
                 
             oc.add(
-                DirectoryObject(
+                TVShowObject(
                     key = Callback(Seasons, url = url, title = title, thumb = thumb),
+                    rating_key = url,
                     title = title,
                     thumb = Resource.ContentsOfURLWithFallback(thumb),
                     summary = summary
@@ -274,10 +275,12 @@ def Seasons(url, title, thumb):
             finalURL = url
             
             oc.add(
-                DirectoryObject(
+                SeasonObject(
                     key = Callback(Episodes, url = finalURL, title = title, thumb = thumb),
+                    rating_key = finalURL,
                     title = title,
-                    thumb = thumb
+                    thumb = thumb,
+                    show = oc.title2
                 )
             )
             
