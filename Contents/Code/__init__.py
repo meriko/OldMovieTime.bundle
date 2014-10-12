@@ -121,7 +121,7 @@ def AllMovies():
     return oc
     
 ##########################################################################################
-@route(PREFIX + '/Items', tv = bool, now = bool) 
+@route(PREFIX + '/Items', tv = bool) 
 def Items(url, category, tv = False):
     oc = ObjectContainer(title2 = category)
     
@@ -129,16 +129,8 @@ def Items(url, category, tv = False):
     baseURL     = url[:url.rfind("/") + 1]
     pageElement = HTML.ElementFromURL(url)
     
-    pathToAdd = ''
-
-    if category == 'Now Showing':
-        # Skip the premium videos
-        pathToAdd = "//img[contains(@alt, 'Premium')]/following-sibling::"
-    else:
-        pathToAdd = "//"
-    
     # Add movies by parsing the site
-    for item in pageElement.xpath(pathToAdd + "a"):
+    for item in pageElement.xpath("//a"):
         try:
             url = item.xpath("./@href")[0]
         except:
@@ -178,7 +170,7 @@ def Items(url, category, tv = False):
             altTitle = ''
         
         summary = None
-        for span in pageElement.xpath(pathToAdd + "span"):
+        for span in pageElement.xpath("//span"):
             text = span.xpath(".//text()")
             
             try:
