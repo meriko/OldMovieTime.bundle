@@ -151,11 +151,11 @@ def Items(url, category, tv = False):
         if '/b/' in originalURL:
             count = 4
         
-        if url.count("/") > count:
+        if url.count("/") > count and not '/feature/' in url:
             continue
-        
-        title = url.replace(baseURL, "").replace(".html", "").replace("_", " ").replace("%20", " ").title().strip()
-        
+
+        title = url.replace(baseURL, "").replace(".html", "").replace("_", " ").replace("%20", " ").replace("feature/","").title().strip()
+
         if not url.startswith("http"):
             url = baseURL + url
         
